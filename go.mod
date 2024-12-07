@@ -1,4 +1,4 @@
-module gg
+module github.com/arcsinw/gg
 
 go 1.18
 
