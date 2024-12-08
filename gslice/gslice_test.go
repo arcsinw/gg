@@ -18,6 +18,67 @@ func TestMap(t *testing.T) {
 	}
 }
 
+// TestMapEmptySlice 测试 Map 函数处理空切片
+func TestMapEmptySlice(t *testing.T) {
+	var input []int
+	expected := make([]string, 0)
+
+	result := Map(input, func(i int) string { return string(rune(i + '0')) })
+	if !reflect.DeepEqual(result, expected) {
+		t.Errorf("Map was incorrect, got %v, expected %v", result, expected)
+	}
+}
+
+func TestMapNonEmptySlice(t *testing.T) {
+	input := []int{1, 2, 3}
+	expected := []int{1, 4, 9}
+	result := Map(input, func(v int) int { return v * v })
+	if !reflect.DeepEqual(result, expected) {
+		t.Errorf("Expected %v, got %v", expected, result)
+	}
+}
+
+func TestMapNilSlice(t *testing.T) {
+	var input []int
+	result := Map(input, func(v int) int { return v })
+	if len(result) != 0 {
+		t.Errorf("Expected nil, got %v", result)
+	}
+}
+
+func TestMapNilFunction(t *testing.T) {
+	input := []int{1, 2, 3}
+	var f func(int) int = nil
+	result := Map(input, f)
+	if len(result) != 0 {
+		t.Errorf("Expected empty slice, got %v", result)
+	}
+}
+
+func TestMapFunctionReturnsDifferentType(t *testing.T) {
+	input := []int{1, 2, 3}
+	expected := []string{"1", "2", "3"}
+	result := Map(input, func(v int) string { return string(rune(v + '0')) })
+	if !reflect.DeepEqual(result, expected) {
+		t.Errorf("Expected %v, got %v", expected, result)
+	}
+}
+
+func TestMapLargeSlice(t *testing.T) {
+	input := make([]int, 1000)
+	for i := range input {
+		input[i] = i
+	}
+	expected := make([]int, 1000)
+	for i := range expected {
+		expected[i] = i * i
+	}
+	result := Map(input, func(v int) int { return v * v })
+	if !reflect.DeepEqual(result, expected) {
+		t.Errorf("Expected %v, got %v", expected, result)
+	}
+}
+
 // TestOrderBy 测试 OrderBy 函数
 func TestOrderBy(t *testing.T) {
 	input := []int{3, 1, 4, 2}
@@ -166,17 +227,6 @@ func TestMapObjectSlice(t *testing.T) {
 	expected := []string{"Alice", "Bob", "Carol"}
 
 	result := Map(people, func(p Person) string { return p.Name })
-	if !reflect.DeepEqual(result, expected) {
-		t.Errorf("Map was incorrect, got %v, expected %v", result, expected)
-	}
-}
-
-// TestMapEmptySlice 测试 Map 函数处理空切片
-func TestMapEmptySlice(t *testing.T) {
-	var input []int
-	expected := make([]string, 0)
-
-	result := Map(input, func(i int) string { return string(rune(i + '0')) })
 	if !reflect.DeepEqual(result, expected) {
 		t.Errorf("Map was incorrect, got %v, expected %v", result, expected)
 	}

@@ -11,12 +11,19 @@ type Number interface {
 
 //TIP 处理nil的slice输入
 
+//TIP 切片的默认值使用空切片而不是nil
+
 // Map 对切片中的每个元素应用一个函数，并返回一个新的切片
 func Map[T, U any](slice []T, f func(T) U) []U {
+	if f == nil {
+		return []U{}
+	}
+
 	result := make([]U, len(slice))
 	for i, v := range slice {
 		result[i] = f(v)
 	}
+
 	return result
 }
 
