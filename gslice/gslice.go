@@ -241,6 +241,19 @@ func Reduce[T any](slice []T, f func(T, T) T) T {
 	return result
 }
 
+func GroupBy[T any, K comparable](slice []T, keyFunc func(T) K) map[K][]T {
+	result := make(map[K][]T)
+	if keyFunc == nil {
+		return result
+	}
+
+	for _, item := range slice {
+		key := keyFunc(item)
+		result[key] = append(result[key], item)
+	}
+	return result
+}
+
 func ToMap[T, V any, K comparable](slice []T, f func(T) (K, V)) map[K]V {
 	result := make(map[K]V)
 	for _, item := range slice {

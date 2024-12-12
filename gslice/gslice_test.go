@@ -538,3 +538,74 @@ func TestUniq(t *testing.T) {
 	expectedSameSlice := []int{4, 5, 6}
 	assert.Equal(t, expectedSameSlice, Uniq(uniqueSlice))
 }
+
+func TestGroupByEmptySlice(t *testing.T) {
+	input := []int{}
+	expected := make(map[int][]int)
+	result := GroupBy(input, func(v int) int { return v })
+	if !reflect.DeepEqual(result, expected) {
+		t.Errorf("Expected %v, got %v", expected, result)
+	}
+}
+
+func TestGroupByNonEmptySlice(t *testing.T) {
+	input := []int{1, 2, 3, 2, 1}
+	expected := map[int][]int{
+		1: {1, 1},
+		2: {2, 2},
+		3: {3},
+	}
+	result := GroupBy(input, func(v int) int { return v })
+	if !reflect.DeepEqual(result, expected) {
+		t.Errorf("Expected %v, got %v", expected, result)
+	}
+}
+
+func TestGroupByWithDuplicateKeys(t *testing.T) {
+	input := []int{1, 2, 2, 3, 1}
+	expected := map[int][]int{
+		1: {1, 1},
+		2: {2, 2},
+		3: {3},
+	}
+	result := GroupBy(input, func(v int) int { return v })
+	if !reflect.DeepEqual(result, expected) {
+		t.Errorf("Expected %v, got %v", expected, result)
+	}
+}
+
+func TestGroupByWithNilFunction(t *testing.T) {
+	input := []int{1, 2, 3}
+	var keyFunc func(int) int = nil
+	result := GroupBy(input, keyFunc)
+	if len(result) != 0 {
+		t.Errorf("Expected nil, got %v", result)
+	}
+}
+
+func TestGroupByWithDifferentTypes(t *testing.T) {
+	input := []struct {
+		ID   int
+		Name string
+	}{
+		{1, "Alice"},
+		{2, "Bob"},
+		{2, "Charlie"},
+	}
+	expected := map[int][]struct {
+		ID   int
+		Name string
+	}{
+		1: {{ID: 1, Name: "Alice"}},
+		2: {{ID: 2, Name: "Bob"}, {ID: 2, Name: "Charlie"}},
+	}
+	result := GroupBy(input, func(v struct {
+		ID   int
+		Name string
+	}) int {
+		return v.ID
+	})
+	if !reflect.DeepEqual(result, expected) {
+		t.Errorf("Expected %v, got %v", expected, result)
+	}
+}
