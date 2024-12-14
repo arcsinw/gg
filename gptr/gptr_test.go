@@ -60,3 +60,32 @@ func BenchmarkOf(b *testing.B) {
 		Of(i)
 	}
 }
+
+func TestIsNil(t *testing.T) {
+	// 基本功能测试
+	var nilPtr *int
+	if !IsNil(nilPtr) {
+		t.Errorf("IsNil should return true for nil pointers, got false")
+	}
+
+	// 类型保持测试
+	notNilPtr := new(int)
+	if IsNil(notNilPtr) {
+		t.Errorf("IsNil should return false for pointers to non-nil pointers, got true")
+	}
+}
+
+func TestIndirectOf(t *testing.T) {
+	var value int = 42
+	ptr := &value
+	result := IndirectOf(ptr)
+	if result != value {
+		t.Errorf("IndirectOf should return the value pointed to by the pointer, got %v", result)
+	}
+
+	var nilPtr *int
+	result = IndirectOf(nilPtr)
+	if result != 0 {
+		t.Errorf("IndirectOf should return the zero value for nil pointers, got %v", result)
+	}
+}

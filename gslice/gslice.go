@@ -1,6 +1,9 @@
 package gslice
 
-import "sort"
+import (
+	"golang.org/x/exp/constraints"
+	"sort"
+)
 
 type Number interface {
 	int | int8 | int16 | int32 | int64 |
@@ -12,6 +15,70 @@ type Number interface {
 //TIP 处理nil的slice输入
 
 //TIP 切片的默认值使用空切片而不是nil
+
+// Shift: 移除并返回切片的第一个元素。
+// Index: 返回切片中第一个匹配元素的索引。
+
+// Reduce: 对切片中的元素进行累积操作，并返回一个单一的值
+
+// Sort 对切片中的元素进行原地排序
+func Sort[T constraints.Ordered](slice []T) []T {
+	sort.SliceStable(slice, func(i, j int) bool {
+		return slice[i] < slice[j]
+	})
+	return slice
+}
+
+// Chunk 将切片分割成指定大小的子切片
+func Chunk[T any](slice []T, size int) [][]T {
+	if size <= 0 {
+		return [][]T{}
+	}
+	result := make([][]T, 0)
+	for i := 0; i < len(slice); i += size {
+		end := i + size
+		if end > len(slice) {
+			end = len(slice)
+		}
+		result = append(result, slice[i:end])
+	}
+	return result
+}
+
+// Pop 移除并返回切片的最后一个元素
+func Pop[T any](slice []T) (T, []T) {
+	if len(slice) == 0 {
+		var zeroValue T
+		return zeroValue, slice
+	}
+	return slice[len(slice)-1], slice[:len(slice)-1]
+}
+
+// Append 将一个或多个元素添加到切片的末尾
+func Append[T any](slice []T, elems ...T) []T {
+	return append(slice, elems...)
+}
+
+// Prepend 将一个或多个元素添加到切片的开头
+func Prepend[T any](slice []T, elems ...T) []T {
+	return append(elems, slice...)
+}
+
+// Insert 在指定位置插入一个或多个元素
+func Insert[T any](slice []T, index int, elems ...T) []T {
+	if index < 0 || index > len(slice) {
+		return slice
+	}
+	return append(slice[:index], append(elems, slice[index:]...)...)
+}
+
+// Remove 从切片中移除指定位置的元素
+func Remove[T any](slice []T, index int) []T {
+	if index < 0 || index >= len(slice) {
+		return slice
+	}
+	return append(slice[:index], slice[index+1:]...)
+}
 
 // Map 对切片中的每个元素应用一个函数，并返回一个新的切片
 func Map[T, U any](slice []T, f func(T) U) []U {
@@ -37,6 +104,28 @@ func First[T any](slice []T, condition func(T) bool) (T, bool) {
 
 	var zeroValue T
 	return zeroValue, false
+}
+
+func FirstIndex[T any](slice []T, condition func(T) bool) (int, bool) {
+	if len(slice) == 0 || condition == nil {
+		return -1, false
+	}
+
+	for i, v := range slice {
+		if condition(v) {
+			return i, true
+		}
+	}
+	return -1, false
+}
+
+// Reverse 反转切片的元素顺序，返回一个新的切片
+func Reverse[T any](slice []T) []T {
+	result := make([]T, len(slice))
+	for i, v := range slice {
+		result[len(slice)-i-1] = v
+	}
+	return result
 }
 
 // Last return the last element which match condition
@@ -149,7 +238,7 @@ func ForEach[T any](slice []T, f func(T)) {
 
 // Flatten 将二维切片扁平化为一维切片
 func Flatten[T any](slices [][]T) []T {
-	var result []T
+	result := make([]T, 0)
 	for _, slice := range slices {
 		result = append(result, slice...)
 	}

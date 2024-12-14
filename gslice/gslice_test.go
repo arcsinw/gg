@@ -260,7 +260,7 @@ func TestFlattenEmptySliceOfSlices(t *testing.T) {
 	var expected []int
 
 	result := Flatten(slices)
-	if !reflect.DeepEqual(result, expected) {
+	if len(result) != 0 {
 		t.Errorf("Flatten was incorrect, got %v, expected %v", result, expected)
 	}
 }
@@ -607,5 +607,231 @@ func TestGroupByWithDifferentTypes(t *testing.T) {
 	})
 	if !reflect.DeepEqual(result, expected) {
 		t.Errorf("Expected %v, got %v", expected, result)
+	}
+}
+
+func TestFirstIndexEmptySlice(t *testing.T) {
+	index, found := FirstIndex([]int{}, func(v int) bool { return v > 0 })
+	if index != -1 || found {
+		t.Errorf("Expected -1 and false, got %d and %v", index, found)
+	}
+}
+
+func TestFirstIndexNonEmptySliceNoMatch(t *testing.T) {
+	index, found := FirstIndex([]int{-1, -2, -3}, func(v int) bool { return v > 0 })
+	if index != -1 || found {
+		t.Errorf("Expected -1 and false, got %d and %v", index, found)
+	}
+}
+
+func TestFirstIndexNonEmptySliceFirstMatch(t *testing.T) {
+	index, found := FirstIndex([]int{1, -2, -3}, func(v int) bool { return v > 0 })
+	if index != 0 || !found {
+		t.Errorf("Expected 0 and true, got %d and %v", index, found)
+	}
+}
+
+func TestFirstIndexNonEmptySliceNonFirstMatch(t *testing.T) {
+	index, found := FirstIndex([]int{-1, -2, 3}, func(v int) bool { return v > 0 })
+	if index != 2 || !found {
+		t.Errorf("Expected 2 and true, got %d and %v", index, found)
+	}
+}
+
+func TestFirstIndexWithNilCondition(t *testing.T) {
+	index, found := FirstIndex([]int{1, 2, 3}, nil)
+	if index != -1 || found {
+		t.Errorf("Expected -1 and false, got %d and %v", index, found)
+	}
+}
+
+func TestFirstIndexConditionAlwaysTrue(t *testing.T) {
+	index, found := FirstIndex([]int{1, 2, 3}, func(v int) bool { return true })
+	if index != 0 || !found {
+		t.Errorf("Expected 0 and true, got %d and %v", index, found)
+	}
+}
+
+func TestReverseEmptySlice(t *testing.T) {
+	reversed := Reverse([]int{})
+	if len(reversed) != 0 {
+		t.Errorf("Expected empty slice, got %v", reversed)
+	}
+}
+
+func TestReverseNonEmptySlice(t *testing.T) {
+	reversed := Reverse([]int{1, 2, 3, 4})
+	expected := []int{4, 3, 2, 1}
+	if !reflect.DeepEqual(reversed, expected) {
+		t.Errorf("Expected %v, got %v", expected, reversed)
+	}
+}
+
+func TestReverseSliceWithRepeatingElements(t *testing.T) {
+	reversed := Reverse([]int{1, 2, 2, 3})
+	expected := []int{3, 2, 2, 1}
+	if !reflect.DeepEqual(reversed, expected) {
+		t.Errorf("Expected %v, got %v", expected, reversed)
+	}
+}
+
+func TestReverseSliceWithDifferentTypes(t *testing.T) {
+	reversed := Reverse([]interface{}{1, "hello", 3.14, true})
+	expected := []interface{}{true, 3.14, "hello", 1}
+	if !reflect.DeepEqual(reversed, expected) {
+		t.Errorf("Expected %v, got %v", expected, reversed)
+	}
+}
+
+func TestSortEmptySlice(t *testing.T) {
+	slice := []int{}
+	Sort(slice)
+	if len(slice) != 0 {
+		t.Errorf("Expected empty slice, got %v", slice)
+	}
+}
+
+func TestSortSingleElementSlice(t *testing.T) {
+	slice := []int{5}
+	Sort(slice)
+	if !reflect.DeepEqual(slice, []int{5}) {
+		t.Errorf("Expected %v, got %v", []int{5}, slice)
+	}
+}
+
+func TestSortSortedSlice(t *testing.T) {
+	slice := []int{1, 2, 3, 4, 5}
+	Sort(slice)
+	if !reflect.DeepEqual(slice, []int{1, 2, 3, 4, 5}) {
+		t.Errorf("Expected %v, got %v", []int{1, 2, 3, 4, 5}, slice)
+	}
+}
+
+func TestSortReverseSlice(t *testing.T) {
+	slice := []int{5, 4, 3, 2, 1}
+	Sort(slice)
+	if !reflect.DeepEqual(slice, []int{1, 2, 3, 4, 5}) {
+		t.Errorf("Expected %v, got %v", []int{1, 2, 3, 4, 5}, slice)
+	}
+}
+
+func TestSortRandomSlice(t *testing.T) {
+	slice := []int{3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5}
+	Sort(slice)
+	expected := []int{1, 1, 2, 3, 3, 4, 5, 5, 5, 6, 9}
+	if !reflect.DeepEqual(slice, expected) {
+		t.Errorf("Expected %v, got %v", expected, slice)
+	}
+}
+
+func TestSortWithDuplicates(t *testing.T) {
+	slice := []int{2, 2, 1, 3, 2}
+	Sort(slice)
+	expected := []int{1, 2, 2, 2, 3}
+	if !reflect.DeepEqual(slice, expected) {
+		t.Errorf("Expected %v, got %v", expected, slice)
+	}
+}
+
+func TestSortNonIntSlice(t *testing.T) {
+	slice := []string{"banana", "apple", "orange"}
+	Sort(slice)
+	expected := []string{"apple", "banana", "orange"}
+	if !reflect.DeepEqual(slice, expected) {
+		t.Errorf("Expected %v, got %v", expected, slice)
+	}
+}
+
+func TestChunk(t *testing.T) {
+	slice := []int{1, 2, 3, 4, 5, 6}
+	chunked := Chunk(slice, 2)
+	expected := [][]int{{1, 2}, {3, 4}, {5, 6}}
+	if !reflect.DeepEqual(chunked, expected) {
+		t.Errorf("Expected %v, got %v", expected, chunked)
+	}
+
+	chunked = Chunk(slice, -2)
+	expected = [][]int{}
+	if !reflect.DeepEqual(chunked, expected) {
+		t.Errorf("Expected %v, got %v", expected, chunked)
+	}
+
+	chunked = Chunk(slice, 4)
+	expected = [][]int{{1, 2, 3, 4}, {5, 6}}
+	if !reflect.DeepEqual(chunked, expected) {
+		t.Errorf("Expected %v, got %v", expected, chunked)
+	}
+}
+
+func TestChunkWithEmptySlice(t *testing.T) {
+	slice := []int{}
+	chunked := Chunk(slice, 2)
+	expected := [][]int{}
+	if !reflect.DeepEqual(chunked, expected) {
+		t.Errorf("Expected %v, got %v", expected, chunked)
+	}
+}
+
+func TestPop(t *testing.T) {
+	slice := []int{1, 2, 3}
+	lastElem, newSlice := Pop(slice)
+	if lastElem != 3 || !reflect.DeepEqual(newSlice, []int{1, 2}) {
+		t.Errorf("Expected last element to be 3 and new slice to be %v, got %v and %v", []int{1, 2}, lastElem, newSlice)
+	}
+
+	emptySlice := []int{}
+	lastElem, newSlice = Pop(emptySlice)
+	if lastElem != 0 || len(newSlice) != 0 {
+		t.Errorf("Expected last element to be 0 and new slice to be empty, got %v and %v", lastElem, newSlice)
+	}
+}
+
+func TestAppend(t *testing.T) {
+	slice := []int{1, 2}
+	appended := Append(slice, 3, 4)
+	expected := []int{1, 2, 3, 4}
+	if !reflect.DeepEqual(appended, expected) {
+		t.Errorf("Expected %v, got %v", expected, appended)
+	}
+}
+
+func TestPrepend(t *testing.T) {
+	slice := []int{1, 2}
+	prepended := Prepend(slice, 3, 4)
+	expected := []int{3, 4, 1, 2}
+	if !reflect.DeepEqual(prepended, expected) {
+		t.Errorf("Expected %v, got %v", expected, prepended)
+	}
+}
+
+func TestInsert(t *testing.T) {
+	slice := []int{1, 2, 4, 5}
+	inserted := Insert(slice, 2, 3)
+	expected := []int{1, 2, 3, 4, 5}
+	if !reflect.DeepEqual(inserted, expected) {
+		t.Errorf("Expected %v, got %v", expected, inserted)
+	}
+
+	slice = []int{1, 2, 4, 5}
+	inserted = Insert(slice, -2, 3)
+	expected = []int{1, 2, 4, 5}
+	if !reflect.DeepEqual(inserted, expected) {
+		t.Errorf("Expected %v, got %v", expected, inserted)
+	}
+}
+
+func TestRemove(t *testing.T) {
+	slice := []int{1, 2, 3, 4}
+	removed := Remove(slice, 2)
+	expected := []int{1, 2, 4}
+	if !reflect.DeepEqual(removed, expected) {
+		t.Errorf("Expected %v, got %v", expected, removed)
+	}
+
+	slice = []int{1, 2, 3, 4}
+	removed = Remove(slice, -2)
+	expected = []int{1, 2, 3, 4}
+	if !reflect.DeepEqual(removed, expected) {
+		t.Errorf("Expected %v, got %v", expected, removed)
 	}
 }
