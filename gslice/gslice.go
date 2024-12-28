@@ -326,8 +326,8 @@ func Reduce[T any](slice []T, f func(T, T) T) T {
 		var zeroValue T
 		return zeroValue
 	}
-	result := slice[0]
-	for i := 1; i < len(slice); i++ {
+	var result T
+	for i := 0; i < len(slice); i++ {
 		result = f(result, slice[i])
 	}
 	return result
