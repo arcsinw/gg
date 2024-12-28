@@ -3,6 +3,7 @@ package gmap
 import (
 	"golang.org/x/exp/slices"
 	"reflect"
+	"sort"
 	"testing"
 )
 
@@ -61,6 +62,9 @@ func TestValues(t *testing.T) {
 	m := map[int]string{1: "a", 2: "b", 3: "c"}
 	expectedValues := []string{"a", "b", "c"}
 	values := Values(m)
+	sort.Slice(values, func(i, j int) bool {
+		return values[i] < values[j]
+	})
 	if !reflect.DeepEqual(values, expectedValues) {
 		t.Errorf("Values failed, expected %v, got %v", expectedValues, values)
 	}

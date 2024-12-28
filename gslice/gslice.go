@@ -5,6 +5,8 @@ import (
 	"sort"
 )
 
+//TIP using empty slice as default value of slice, not nil
+
 type Number interface {
 	int | int8 | int16 | int32 | int64 |
 		uint | uint8 | uint16 | uint32 | uint64 |
@@ -12,16 +14,7 @@ type Number interface {
 		complex64 | complex128
 }
 
-//TIP 处理nil的slice输入
-
-//TIP 切片的默认值使用空切片而不是nil
-
-// Shift: 移除并返回切片的第一个元素。
-// Index: 返回切片中第一个匹配元素的索引。
-
-// Reduce: 对切片中的元素进行累积操作，并返回一个单一的值
-
-// Sort 对切片中的元素进行原地排序
+// Sort sort the elements in the slice in place
 func Sort[T constraints.Ordered](slice []T) []T {
 	sort.SliceStable(slice, func(i, j int) bool {
 		return slice[i] < slice[j]
@@ -29,7 +22,7 @@ func Sort[T constraints.Ordered](slice []T) []T {
 	return slice
 }
 
-// Chunk 将切片分割成指定大小的子切片
+// Chunk divides the slice into smaller slices, each containing at most 'size' elements
 func Chunk[T any](slice []T, size int) [][]T {
 	if size <= 0 {
 		return [][]T{}
@@ -45,7 +38,7 @@ func Chunk[T any](slice []T, size int) [][]T {
 	return result
 }
 
-// Pop 移除并返回切片的最后一个元素
+// Pop removes and returns the last element from the slice and new slice
 func Pop[T any](slice []T) (T, []T) {
 	if len(slice) == 0 {
 		var zeroValue T
@@ -54,17 +47,17 @@ func Pop[T any](slice []T) (T, []T) {
 	return slice[len(slice)-1], slice[:len(slice)-1]
 }
 
-// Append 将一个或多个元素添加到切片的末尾
+// Append appends elements to the end of a slice and returns a new slice
 func Append[T any](slice []T, elems ...T) []T {
 	return append(slice, elems...)
 }
 
-// Prepend 将一个或多个元素添加到切片的开头
+// Prepend append one or more items to the beginning of slice and returns a new slice
 func Prepend[T any](slice []T, elems ...T) []T {
 	return append(elems, slice...)
 }
 
-// Insert 在指定位置插入一个或多个元素
+// Insert inserts elements into a slice at a specified index and returns a new slice
 func Insert[T any](slice []T, index int, elems ...T) []T {
 	if index < 0 || index > len(slice) {
 		return slice
@@ -72,7 +65,7 @@ func Insert[T any](slice []T, index int, elems ...T) []T {
 	return append(slice[:index], append(elems, slice[index:]...)...)
 }
 
-// Remove 从切片中移除指定位置的元素
+// Remove remove an element from a slice at a given index
 func Remove[T any](slice []T, index int) []T {
 	if index < 0 || index >= len(slice) {
 		return slice
@@ -80,7 +73,7 @@ func Remove[T any](slice []T, index int) []T {
 	return append(slice[:index], slice[index+1:]...)
 }
 
-// Map 对切片中的每个元素应用一个函数，并返回一个新的切片
+// Map apply function f to each element of a slice and return a new slice
 func Map[T, U any](slice []T, f func(T) U) []U {
 	if f == nil {
 		return []U{}
@@ -94,7 +87,7 @@ func Map[T, U any](slice []T, f func(T) U) []U {
 	return result
 }
 
-// First 返回满足条件的第一个元素
+// First return first element which match condition
 func First[T any](slice []T, condition func(T) bool) (T, bool) {
 	for _, v := range slice {
 		if condition(v) {
@@ -119,7 +112,7 @@ func FirstIndex[T any](slice []T, condition func(T) bool) (int, bool) {
 	return -1, false
 }
 
-// Reverse 反转切片的元素顺序，返回一个新的切片
+// Reverse reverse elements in slice and returns a new slice
 func Reverse[T any](slice []T) []T {
 	result := make([]T, len(slice))
 	for i, v := range slice {
@@ -144,6 +137,7 @@ func Last[T any](slice []T, condition func(T) bool) (T, bool) {
 	return zeroValue, false
 }
 
+// Count return count of elements which match the condition
 func Count[T any](slice []T, condition func(T) bool) int64 {
 	count := int64(0)
 	for _, v := range slice {
@@ -180,6 +174,7 @@ func AnyMatch[T any](slice []T, condition func(T) bool) bool {
 	return false
 }
 
+// OrderBy return a new slice sorted by less function
 func OrderBy[T any](slice []T, less func(T, T) bool) []T {
 	result := make([]T, len(slice))
 	copy(result, slice)
@@ -189,6 +184,7 @@ func OrderBy[T any](slice []T, less func(T, T) bool) []T {
 	return result
 }
 
+// Min return the min value of slice
 func Min[T any](slice []T, less func(T, T) bool) T {
 	if len(slice) == 0 {
 		var zeroValue T
@@ -205,6 +201,7 @@ func Min[T any](slice []T, less func(T, T) bool) T {
 	return min
 }
 
+// Max return the max value of slice
 func Max[T any](slice []T, less func(T, T) bool) T {
 	if len(slice) == 0 {
 		var zeroValue T
@@ -221,6 +218,7 @@ func Max[T any](slice []T, less func(T, T) bool) T {
 	return max
 }
 
+// Sum return the sum of slice
 func Sum[T any, E Number](slice []T, f func(T) E) E {
 	var sum E
 	for _, elem := range slice {
@@ -230,13 +228,14 @@ func Sum[T any, E Number](slice []T, f func(T) E) E {
 	return sum
 }
 
+// ForEach apply f to each element of slice
 func ForEach[T any](slice []T, f func(T)) {
 	for _, v := range slice {
 		f(v)
 	}
 }
 
-// Flatten 将二维切片扁平化为一维切片
+// Flatten flattens a slice of slices into a single slice
 func Flatten[T any](slices [][]T) []T {
 	result := make([]T, 0)
 	for _, slice := range slices {
@@ -245,6 +244,7 @@ func Flatten[T any](slices [][]T) []T {
 	return result
 }
 
+// Uniq remove duplicate elements from slice
 func Uniq[T comparable](slice []T) []T {
 	if len(slice) == 0 {
 		return slice
@@ -267,6 +267,7 @@ func Uniq[T comparable](slice []T) []T {
 	return result
 }
 
+// UniqBy remove duplicate elements from slice by keyFunc
 func UniqBy[T any, K comparable](slice []T, keyFunc func(T) K) []T {
 	if len(slice) == 0 {
 		return slice
@@ -289,6 +290,7 @@ func UniqBy[T any, K comparable](slice []T, keyFunc func(T) K) []T {
 	return result
 }
 
+// Concat concat multi slice to a new slice
 func Concat[S ~[]E, E any](slices ...S) S {
 	var result []E
 	for _, slice := range slices {
@@ -297,7 +299,8 @@ func Concat[S ~[]E, E any](slices ...S) S {
 	return result
 }
 
-func Contains[S ~[]E, E comparable](s S, v E) bool {
+// Contains checks if slice contains a specific value
+func Contains[T comparable](s []T, v T) bool {
 	for _, elem := range s {
 		if elem == v {
 			return true
@@ -306,7 +309,7 @@ func Contains[S ~[]E, E comparable](s S, v E) bool {
 	return false
 }
 
-// Filter 根据条件过滤切片中的元素，返回一个新的切片
+// Filter return elements in slice that match the given condition
 func Filter[T any](slice []T, f func(T) bool) []T {
 	var result []T
 	for _, v := range slice {
@@ -330,6 +333,7 @@ func Reduce[T any](slice []T, f func(T, T) T) T {
 	return result
 }
 
+// GroupBy groups the elements in the slice according to the specified key function
 func GroupBy[T any, K comparable](slice []T, keyFunc func(T) K) map[K][]T {
 	result := make(map[K][]T)
 	if keyFunc == nil {
@@ -343,6 +347,7 @@ func GroupBy[T any, K comparable](slice []T, keyFunc func(T) K) map[K][]T {
 	return result
 }
 
+// ToMap converts a slice into a map using a specified function to extract keys and values.
 func ToMap[T, V any, K comparable](slice []T, f func(T) (K, V)) map[K]V {
 	result := make(map[K]V)
 	for _, item := range slice {
