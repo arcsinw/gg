@@ -1,6 +1,6 @@
 package gmap
 
-// Keys return keys of map as a slice
+// Keys return keys of map as a slice (in random sort)
 func Keys[K comparable, V any](m map[K]V) []K {
 	keys := make([]K, 0, len(m))
 	for k := range m {
@@ -51,13 +51,14 @@ func Merge[K comparable, V any](maps ...map[K]V) map[K]V {
 	return result
 }
 
-// Clear 清空map
+// Clear clears the map.
 func Clear[K comparable, V any](m map[K]V) {
 	for k := range m {
 		delete(m, k)
 	}
 }
 
+// Clone creates a shallow copy of the map.
 func Clone[K comparable, V any](m map[K]V) map[K]V {
 	result := make(map[K]V, len(m))
 	for k, v := range m {
@@ -66,6 +67,8 @@ func Clone[K comparable, V any](m map[K]V) map[K]V {
 	return result
 }
 
+// GetOrDefault retrieves the value corresponding to the key from the map.
+// If the key does not exist, it returns the default value.
 func GetOrDefault[K comparable, V any](m map[K]V, key K, defaultValue V) V {
 	if v, ok := m[key]; ok {
 		return v

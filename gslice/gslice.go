@@ -1,7 +1,6 @@
 package gslice
 
 import (
-	"golang.org/x/exp/constraints"
 	"sort"
 )
 
@@ -10,12 +9,15 @@ import (
 type Number interface {
 	int | int8 | int16 | int32 | int64 |
 		uint | uint8 | uint16 | uint32 | uint64 |
-		float32 | float64 |
-		complex64 | complex128
+		float32 | float64
+}
+
+type Ordered interface {
+	Number | ~string
 }
 
 // Sort sort the elements in the slice in place
-func Sort[T constraints.Ordered](slice []T) []T {
+func Sort[T Ordered](slice []T) []T {
 	sort.SliceStable(slice, func(i, j int) bool {
 		return slice[i] < slice[j]
 	})

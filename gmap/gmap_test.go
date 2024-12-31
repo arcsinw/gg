@@ -1,7 +1,6 @@
 package gmap
 
 import (
-	"golang.org/x/exp/slices"
 	"reflect"
 	"sort"
 	"testing"
@@ -50,8 +49,7 @@ func TestKeys(t *testing.T) {
 	expectedKeys := []int{1, 2, 3}
 	keys := Keys(m)
 
-	slices.Sort(keys)
-	slices.Sort(expectedKeys)
+	sort.Ints(keys)
 
 	if !reflect.DeepEqual(keys, expectedKeys) {
 		t.Errorf("Keys failed, expected %v, got %v", expectedKeys, keys)
