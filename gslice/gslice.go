@@ -264,7 +264,7 @@ func Uniq[T comparable](slice []T) []T {
 		return slice
 	}
 
-	var result []T
+	result := make([]T, 0)
 
 	m := map[T]interface{}{}
 	for _, elem := range slice {
@@ -287,7 +287,7 @@ func UniqBy[T any, K comparable](slice []T, keyFunc func(T) K) []T {
 		return slice
 	}
 
-	var result []T
+	result := make([]T, 0)
 
 	m := map[K]interface{}{}
 	for _, elem := range slice {
@@ -306,7 +306,7 @@ func UniqBy[T any, K comparable](slice []T, keyFunc func(T) K) []T {
 
 // Concat concat multi slice to a new slice
 func Concat[S ~[]E, E any](slices ...S) S {
-	var result []E
+	result := make([]E, 0)
 	for _, slice := range slices {
 		result = append(result, slice...)
 	}

@@ -298,7 +298,7 @@ func TestUniqByEmptySlice(t *testing.T) {
 func TestConcatEmptySlices(t *testing.T) {
 	var input1 []int
 	var input2 []int
-	var expected []int
+	expected := make([]int, 0)
 
 	result := Concat(input1, input2)
 	if !reflect.DeepEqual(result, expected) {
