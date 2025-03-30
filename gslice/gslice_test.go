@@ -150,11 +150,29 @@ func TestContains(t *testing.T) {
 
 // TestFilter 测试 Filter 函数
 func TestFilter(t *testing.T) {
-	input := []int{1, 2, 3, 4}
-	expected := []int{2, 4}
+	input := []int{-1, 0, 1, 2, 3, 4}
+	expected := []int{0, 2, 4}
 	isEven := func(i int) bool { return i%2 == 0 }
 
 	result := Filter(input, isEven)
+	if !reflect.DeepEqual(result, expected) {
+		t.Errorf("Filter was incorrect, got %v, expected %v", result, expected)
+	}
+
+	result = Filter(input, IsNotZeroFunc[int])
+	expected = []int{-1, 1, 2, 3, 4}
+	if !reflect.DeepEqual(result, expected) {
+		t.Errorf("Filter was incorrect, got %v, expected %v", result, expected)
+	}
+
+	result = Filter(input, IsPositiveFunc[int])
+	expected = []int{1, 2, 3, 4}
+	if !reflect.DeepEqual(result, expected) {
+		t.Errorf("Filter was incorrect, got %v, expected %v", result, expected)
+	}
+
+	result = Filter(input, IsNegativeFunc[int])
+	expected = []int{-1}
 	if !reflect.DeepEqual(result, expected) {
 		t.Errorf("Filter was incorrect, got %v, expected %v", result, expected)
 	}
@@ -302,9 +320,9 @@ func TestContainsEmptySlice(t *testing.T) {
 // TestFilterEmptySlice 测试 Filter 函数处理空切片
 func TestFilterEmptySlice(t *testing.T) {
 	var input []int
-	var expected []int
+	expected := make([]int, 0)
 
-	result := Filter(input, func(i int) bool { return i > 0 })
+	result := Filter(input, IsPositiveFunc[int])
 	if !reflect.DeepEqual(result, expected) {
 		t.Errorf("Filter was incorrect, got %v, expected %v", result, expected)
 	}

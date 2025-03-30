@@ -16,6 +16,18 @@ type Ordered interface {
 	Number | ~string
 }
 
+func IsNotZeroFunc[T Number](t T) bool {
+	return t != 0
+}
+
+func IsPositiveFunc[T Number](t T) bool {
+	return t > 0
+}
+
+func IsNegativeFunc[T Number](t T) bool {
+	return t < 0
+}
+
 // Sort sort the elements in the slice in place
 func Sort[T Ordered](slice []T) []T {
 	sort.SliceStable(slice, func(i, j int) bool {
@@ -193,14 +205,14 @@ func Min[T any](slice []T, less func(T, T) bool) T {
 		return zeroValue
 	}
 
-	min := slice[0]
+	minValue := slice[0]
 	for _, v := range slice {
-		if less(v, min) {
-			min = v
+		if less(v, minValue) {
+			minValue = v
 		}
 	}
 
-	return min
+	return minValue
 }
 
 // Max return the max value of slice
@@ -210,14 +222,14 @@ func Max[T any](slice []T, less func(T, T) bool) T {
 		return zeroValue
 	}
 
-	max := slice[0]
+	maxValue := slice[0]
 	for _, v := range slice {
-		if less(max, v) {
-			max = v
+		if less(maxValue, v) {
+			maxValue = v
 		}
 	}
 
-	return max
+	return maxValue
 }
 
 // Sum return the sum of slice
@@ -313,7 +325,7 @@ func Contains[T comparable](s []T, v T) bool {
 
 // Filter return elements in slice that match the given condition
 func Filter[T any](slice []T, f func(T) bool) []T {
-	var result []T
+	result := make([]T, 0)
 	for _, v := range slice {
 		if f(v) {
 			result = append(result, v)
@@ -322,7 +334,7 @@ func Filter[T any](slice []T, f func(T) bool) []T {
 	return result
 }
 
-// Reduce 对切片中的元素进行累积操作，返回一个单一的值
+// Reduce reduce slice to a single value
 func Reduce[T any](slice []T, f func(T, T) T) T {
 	if len(slice) == 0 {
 		var zeroValue T

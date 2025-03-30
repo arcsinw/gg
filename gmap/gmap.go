@@ -18,29 +18,34 @@ func Values[K comparable, V any](m map[K]V) []V {
 	return values
 }
 
-// Merge 合并多个map
+// Map apply function f to each element of a map and return a new map
+func Map[K comparable, V any](m map[K]V, f func(K, V) (K, V)) map[K]V {
+	result := make(map[K]V, len(m))
+	for k1, v1 := range m {
+		k2, v2 := f(k1, v1)
+		result[k2] = v2
+	}
+	return result
+}
+
+// Merge merges multiple maps into one.
 //
-// 注意：如果有相同的key，后面的map会覆盖前面的map
+// if the same key exists in multiple maps, the value in the last map will be used.
 //
-// 示例：
+// example:
 //
-//	m1 := map[string]int{"a": 1, "b": 2}
-//	m2 := map[string]int{"b": 3, "c": 4}
-//	m3 := map[string]int{"c": 5, "d": 6}
+//		m1 := map[string]int{"a": 1, "b": 2}
+//		m2 := map[string]int{"b": 3, "c": 4}
+//		m3 := map[string]int{"c": 5, "d": 6}
 //
-//	result := Merge(m1, m2, m3)
-//	// result: map[string]int{"a": 1, "b": 3, "c": 4, "d": 6}
+//		result := Merge(m1, m2, m3)
+//		// result: map[string]int{"a": 1, "b": 3, "c": 5, "d": 6}
 //
-//	// 也可以使用可变参数
+//	 // or use slice
 //
-//	result := Merge(m1, m2, m3)
-//	// result: map[string]int{"a": 1, "b": 3, "c": 4, "d": 6}
-//
-//	// 也可以使用切片
-//
-//	maps := []map[string]int{m1, m2, m3}
-//	result := Merge(maps...)
-//	// result: map[string]int{"a": 1, "b": 3, "c": 4, "d": 6}
+//		maps := []map[string]int{m1, m2, m3}
+//		result := Merge(maps...)
+//		// result: map[string]int{"a": 1, "b": 3, "c": 5, "d": 6}
 func Merge[K comparable, V any](maps ...map[K]V) map[K]V {
 	result := make(map[K]V)
 	for _, m := range maps {

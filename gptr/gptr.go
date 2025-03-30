@@ -5,8 +5,6 @@ func Of[T any](v T) *T {
 	return &v
 }
 
-// IndirectOf 对指针进行解引用，p为nil时返回类型的零值
-
 // IndirectOf returns the value it points to
 // or the zero value of the type if the pointer is nil.
 func IndirectOf[T any](p *T) T {
